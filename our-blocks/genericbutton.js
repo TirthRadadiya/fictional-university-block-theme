@@ -1,70 +1,45 @@
-import {
-  ToolbarGroup,
-  ToolbarButton,
-  Popover,
-  Button,
-  PanelBody,
-  PanelRow,
-  ColorPalette,
-} from "@wordpress/components";
-import {
-  RichText,
-  BlockControls,
-  InspectorControls,
-  getColorObjectByColorValue,
-  __experimentalLinkControl as LinkControl,
-} from "@wordpress/block-editor";
-import { link } from "@wordpress/icons";
-import { useState } from "@wordpress/element";
+import ourColors from "../inc/ourColors"
+import { link } from "@wordpress/icons"
+import { ToolbarGroup, ToolbarButton, Popover, Button, PanelBody, PanelRow, ColorPalette } from "@wordpress/components"
+import { RichText, InspectorControls, BlockControls, __experimentalLinkControl as LinkControl, getColorObjectByColorValue } from "@wordpress/block-editor"
+import { registerBlockType } from "@wordpress/blocks"
+import { useState } from "@wordpress/element"
 
-wp.blocks.registerBlockType("ourblocktheme/genericbutton", {
+registerBlockType("ourblocktheme/genericbutton", {
   title: "Generic Button",
   attributes: {
     text: { type: "string" },
     size: { type: "string", default: "large" },
-    linkObject: { type: "object" },
-    colorName: { type: "string", default: "blue" },
+    linkObject: { type: "object", default: { url: "" } },
+    colorName: { type: "string", default: "blue" }
   },
   edit: EditComponent,
-  save: SaveComponent,
-});
+  save: SaveComponent
+})
 
-function EditComponent({ attributes, setAttributes }) {
-  const [isVisible, setIsVisible] = useState(false);
-  // const [currentColor, setCurrentColor] = useState("");
+function EditComponent(props) {
+  const [isLinkPickerVisible, setIsLinkPickerVisible] = useState(false)
 
-  function handleTextChange(value) {
-    setAttributes({ text: value });
+  function handleTextChange(x) {
+    props.setAttributes({ text: x })
   }
 
   function buttonHandler() {
-    setIsVisible(!isVisible);
+    setIsLinkPickerVisible(prev => !prev)
   }
 
   function handleLinkChange(newLink) {
-    setAttributes({ linkObject: newLink });
+    props.setAttributes({ linkObject: newLink })
   }
 
-  const ourColors = [
-    { name: "blue", color: "#0d3b66" },
-    { name: "orange", color: "#ee964b" },
-    { name: "dark-orange", color: "#f95738" },
-  ];
-
-  // const temp = {};
-  // ourColors.forEach((color) => {
-  //   temp[color.color] = color.name;
-  // });
-
-  // setCurrentColor()
-
-  const currentColor = ourColors.filter((color) => {
-    return color.name === attributes.colorName;
-  })[0].color;
+  const currentColorValue = ourColors.filter(color => {
+    return color.name == props.attributes.colorName
+  })[0].color
 
   function handleColorChange(colorCode) {
-    const { name } = getColorObjectByColorValue(ourColors, colorCode);
-    setAttributes({ colorName: name });
+    // from the hex value that the color palette gives us, we need to find its color name
+    const { name } = getColorObjectByColorValue(ourColors, colorCode)
+    props.setAttributes({ colorName: name })
   }
 
   return (
@@ -74,22 +49,13 @@ function EditComponent({ attributes, setAttributes }) {
           <ToolbarButton onClick={buttonHandler} icon={link} />
         </ToolbarGroup>
         <ToolbarGroup>
-          <ToolbarButton
-            isPressed={attributes.size === "large"}
-            onClick={() => setAttributes({ size: "large" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "large"} onClick={() => props.setAttributes({ size: "large" })}>
             Large
           </ToolbarButton>
-          <ToolbarButton
-            isPressed={attributes.size === "medium"}
-            onClick={() => setAttributes({ size: "medium" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "medium"} onClick={() => props.setAttributes({ size: "medium" })}>
             Medium
           </ToolbarButton>
-          <ToolbarButton
-            isPressed={attributes.size === "small"}
-            onClick={() => setAttributes({ size: "small" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "small"} onClick={() => props.setAttributes({ size: "small" })}>
             Small
           </ToolbarButton>
         </ToolbarGroup>
@@ -97,53 +63,27 @@ function EditComponent({ attributes, setAttributes }) {
       <InspectorControls>
         <PanelBody title="Color" initialOpen={true}>
           <PanelRow>
-            <ColorPalette
-              colors={ourColors}
-              disableCustomColors={true}
-              clearable={false}
-              value={currentColor}
-              onChange={handleColorChange}
-            />
+            <ColorPalette disableCustomColors={true} clearable={false} colors={ourColors} value={currentColorValue} onChange={handleColorChange} />
           </PanelRow>
         </PanelBody>
       </InspectorControls>
-      <RichText
-        allowedFormats={[]}
-        tagName="a"
-        className={`btn btn--${attributes.size} btn--${attributes.colorName}`}
-        value={attributes.text}
-        onChange={handleTextChange}
-      />
-      {isVisible && (
-        <Popover
-          position="middle center"
-          onFocusOutside={() => setIsVisible(false)}
-        >
-          <LinkControl
-            settings={[]}
-            value={attributes.linkObject}
-            onChange={handleLinkChange}
-          />
-          <Button
-            variant="primary"
-            onClick={() => setIsVisible(false)}
-            style={{ display: "block", width: "100%" }}
-          >
+      <RichText allowedFormats={[]} tagName="a" className={`btn btn--${props.attributes.size} btn--${props.attributes.colorName}`} value={props.attributes.text} onChange={handleTextChange} />
+      {isLinkPickerVisible && (
+        <Popover position="middle center">
+          <LinkControl settings={[]} value={props.attributes.linkObject} onChange={handleLinkChange} />
+          <Button variant="primary" onClick={() => setIsLinkPickerVisible(false)} style={{ display: "block", width: "100%" }}>
             Confirm Link
           </Button>
         </Popover>
       )}
     </>
-  );
+  )
 }
 
-function SaveComponent({ attributes }) {
+function SaveComponent(props) {
   return (
-    <a
-      href={attributes.linkObject?.url}
-      className={`btn btn--${attributes.size} btn--${attributes.colorName}`}
-    >
-      {attributes.text}
+    <a href={props.attributes.linkObject.url} className={`btn btn--${props.attributes.size} btn--${props.attributes.colorName}`}>
+      {props.attributes.text}
     </a>
-  );
+  )
 }

@@ -1,30 +1,27 @@
-import { InnerBlocks } from "@wordpress/block-editor";
+import { InnerBlocks } from "@wordpress/block-editor"
+import { registerBlockType } from "@wordpress/blocks"
 
-wp.blocks.registerBlockType("ourblocktheme/slideshow", {
+registerBlockType("ourblocktheme/slideshow", {
   title: "Slideshow",
-  suports: {
-    align: ["full"],
+  supports: {
+    align: ["full"]
   },
   attributes: {
-    align: { type: "string", default: "full" },
+    align: { type: "string", default: "full" }
   },
   edit: EditComponent,
-  save: SaveComponent,
-});
+  save: SaveComponent
+})
+
+function SaveComponent() {
+  return <InnerBlocks.Content />
+}
 
 function EditComponent() {
   return (
-    <>
-      <div style={{ backgroundColor: "#333", padding: "35px" }}>
-        <p style={{ textAlign: "center", fontSize: "20px", color: "#fff" }}>
-          SlideShow
-        </p>
-        <InnerBlocks allowedBlocks={["ourblocktheme/slide"]} />
-      </div>
-    </>
-  );
-}
-
-function SaveComponent() {
-  return <InnerBlocks.Content />;
+    <div style={{ backgroundColor: "#333", padding: "35px" }}>
+      <p style={{ textAlign: "center", fontSize: "20px", color: "#FFF" }}>Slideshow</p>
+      <InnerBlocks allowedBlocks={["ourblocktheme/slide"]} />
+    </div>
+  )
 }
