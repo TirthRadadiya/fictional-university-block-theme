@@ -1,13 +1,9 @@
 wp.blocks.registerBlockType("ourblocktheme/header", {
-  title: "Ficational university Header",
+  title: "Fictional University Header",
   edit: function () {
-    return wp.element.createElement(
-      "div",
-      { className: "our-placeholder-block" },
-      "Add Header Navigation"
-    );
+    return wp.element.createElement("div", { className: "our-placeholder-block" }, "Header Placeholder")
   },
   save: function () {
-    return null;
-  },
-});
+    return null
+  }
+})

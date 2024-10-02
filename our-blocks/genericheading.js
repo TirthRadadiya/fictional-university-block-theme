@@ -1,67 +1,53 @@
-import { ToolbarGroup, ToolbarButton } from "@wordpress/components";
-import { RichText, BlockControls } from "@wordpress/block-editor";
+import { ToolbarGroup, ToolbarButton } from "@wordpress/components"
+import { RichText, BlockControls } from "@wordpress/block-editor"
+import { registerBlockType } from "@wordpress/blocks"
 
-wp.blocks.registerBlockType("ourblocktheme/genericheading", {
+registerBlockType("ourblocktheme/genericheading", {
   title: "Generic Heading",
   attributes: {
     text: { type: "string" },
-    size: { type: "string", default: "large" },
+    size: { type: "string", default: "large" }
   },
   edit: EditComponent,
-  save: SaveComponent,
-});
+  save: SaveComponent
+})
 
-function EditComponent({ attributes, setAttributes }) {
-  function handleTextChange(value) {
-    setAttributes({ text: value });
+function EditComponent(props) {
+  function handleTextChange(x) {
+    props.setAttributes({ text: x })
   }
+
   return (
     <>
       <BlockControls>
         <ToolbarGroup>
-          <ToolbarButton
-            isPressed={attributes.size === "large"}
-            onClick={() => setAttributes({ size: "large" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "large"} onClick={() => props.setAttributes({ size: "large" })}>
             Large
           </ToolbarButton>
-          <ToolbarButton
-            isPressed={attributes.size === "medium"}
-            onClick={() => setAttributes({ size: "medium" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "medium"} onClick={() => props.setAttributes({ size: "medium" })}>
             Medium
           </ToolbarButton>
-          <ToolbarButton
-            isPressed={attributes.size === "small"}
-            onClick={() => setAttributes({ size: "small" })}
-          >
+          <ToolbarButton isPressed={props.attributes.size === "small"} onClick={() => props.setAttributes({ size: "small" })}>
             Small
           </ToolbarButton>
         </ToolbarGroup>
       </BlockControls>
-      <RichText
-        allowedFormats={["core/bold", "core/italic"]}
-        tagName="h1"
-        className={`headline headline--${attributes.size}`}
-        value={attributes.text}
-        onChange={handleTextChange}
-      />
+      <RichText allowedFormats={["core/bold", "core/italic"]} tagName="h1" className={`headline headline--${props.attributes.size}`} value={props.attributes.text} onChange={handleTextChange} />
     </>
-  );
+  )
 }
 
-function SaveComponent({ attributes }) {
-  return (
-    <RichText.Content
-      tagName={
-        attributes.size === "large"
-          ? "h1"
-          : attributes.size === "medium"
-          ? "h2"
-          : "h3"
-      }
-      className={`headline headline--${attributes.size}`}
-      value={attributes.text}
-    />
-  );
+function SaveComponent(props) {
+  function createTagName() {
+    switch (props.attributes.size) {
+      case "large":
+        return "h1"
+      case "medium":
+        return "h2"
+      case "small":
+        return "h3"
+    }
+  }
+
+  return <RichText.Content tagName={createTagName()} value={props.attributes.text} className={`headline headline--${props.attributes.size}`} />
 }
